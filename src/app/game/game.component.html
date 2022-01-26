@@ -1,0 +1,21 @@
+<div *ngIf="ready == true">
+<table>
+  <tr *ngFor="let row of gird">
+    <td *ngFor="let field of row">
+      <svg *ngIf="field == 1" class="fish">
+      </svg>
+      <svg *ngIf="field == 2" class="shark">
+      </svg>
+    </td>
+  </tr>
+</table>
+<button type="button" (click)="tick()">
+  Run
+</button>
+<button type="button" (click)="start()">
+  Start
+</button>
+<button type="button" (click)="stop()">
+  Stop
+</button>
+</div>
