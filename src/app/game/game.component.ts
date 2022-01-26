@@ -11,6 +11,9 @@ import { Shark } from '../models/shark';
 })
 export class GameComponent implements OnInit {
 
+  data: any[] = [];
+  view: any[] = [700, 300];
+
   public rowSize = 20;
   public colSize = 20;
   public gird: number[][] | undefined;
@@ -20,16 +23,34 @@ export class GameComponent implements OnInit {
   private timeToDeath = 5;
   private isRunning = false;
   private intervalId!: number;
-  private data: Map<number,number> = new Map();
-  private counter:number = 0;
+  public counter:number = 0;
 
-  constructor() { }
+  constructor() {
+   }
 
   ngOnInit(): void {
     this.gird = new Array(this.rowSize).fill(0).map(() => new Array(this.colSize).fill(0));
     this.generateSharks(20);
     this.generateFish(200);
     this.draw();
+    this.data.push({
+      "name": "Shark",
+      "series": [
+        {
+          "name": "0",
+          "value": "20"
+        }
+      ]
+    });
+    this.data.push({
+      "name": "Fish",
+      "series": [
+        {
+          "name": "0",
+          "value":"200"
+        }
+      ]
+    });
     this.ready = true;
   }
 
@@ -58,6 +79,14 @@ export class GameComponent implements OnInit {
   }
 
   public tick() {
+    this.data[0].series.push({
+      "name": this.counter,
+      "value": this.animals.filter(x => x.idetifier == 2).length
+    });
+    this.data[1].series.push({
+      "name": this.counter,
+      "value": this.animals.filter(x => x.idetifier == 1).length
+    });
     this.animals.sort((a1,a2) => {
       return a1.idetifier - a2.idetifier;
     })
@@ -69,6 +98,9 @@ export class GameComponent implements OnInit {
       this.calculateMove(this.animals![i]);
     }
     this.draw();
+    let updateed = this.data;
+    this.data = [...updateed];
+    console.log(this.data);
   }
   }
 
