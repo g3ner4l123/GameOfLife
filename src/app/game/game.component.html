@@ -1,27 +1,168 @@
-<div *ngIf="ready == true">
-<table>
-  <tr *ngFor="let row of gird">
-    <td *ngFor="let field of row">
-      <svg *ngIf="field == 1" class="fish">
-      </svg>
-      <svg *ngIf="field == 2" class="shark">
-      </svg>
-    </td>
-  </tr>
-</table>
-<button type="button" (click)="tick()">
-  Run
-</button>
-<button type="button" (click)="start()">
-  Start
-</button>
-<button type="button" (click)="stop()">
-  Stop
-</button>
+<div class="container">
+  <div class="row align-items-center">
+    <div class="col">
+      <table class="outline">
+        <tr *ngFor="let row of gird">
+          <td *ngFor="let field of row">
+            <svg *ngIf="field == 1" class="fish"></svg>
+            <svg *ngIf="field == 2" class="shark"></svg>
+          </td>
+        </tr>
+      </table>
+    </div>
+    <div class="col">
+      <div>
+        <ngx-charts-line-chart
+          [view]="[700, 300]"
+          [results]="data"
+          [legend]="true"
+          [legendTitle]="title"
+          [xAxis]="true"
+          [yAxis]="true"
+          [showGridLines]="true"
+          [showXAxisLabel]="true"
+          [showYAxisLabel]="true"
+          [xAxisLabel]="xaxis"
+          [yAxisLabel]="yaxis"
+          [curve]="curve"
+        >
+        </ngx-charts-line-chart>
+      </div>
+    </div>
+  </div>
+  <div class="row align-items-center">
+    <div class="col">
+      <form>
+        <div class="row align-items-center">
+          <div class="col-5">
+          <label for="fishNumber">Number of Fish</label>
+          <input
+            type="number"
+            [disabled]="isRunning"
+            class="form-control"
+            id="fishNumber"
+            name="fishNumber"
+            value="{{defaultFish}}"
+          />
+          </div>
+        <div class="col-5">
+          <label for="sharkNumber">Number of Shark</label>
+          <input
+            type="number"
+            [disabled]="isRunning"
+            class="form-control"
+            id="sharkNumber"
+            value="{{defaultSharks}}"
+          />
+        </div>
+      </div>
+      <div class="row align-items-center">
+        <div class="col-5">
+        <label for="deathNumber">Cycles till Starvation</label>
+        <input
+          type="number"
+          class="form-control"
+          id="deathNumber"
+          [disabled]="isRunning"
+          value="{{timeToDeath}}"
+        />
+        </div>
+      <div class="col-5">
+        <label for="repodNumber">Cycles till Reproduction</label>
+        <input
+          type="number"
+          class="form-control"
+          id="repodNumber"
+          [disabled]="isRunning"
+          value="{{timeToBreed}}"
+        />
+      </div>
+    </div>
+        <div class="row align-items-center">
+          <div class="col">
+            <div class="row align-items-center">
+
+              <div class="col-2">
+                <button
+                  type="button"
+                  class="btn btn-outline-primary"
+                  [disabled]="isRunning"
+                  (click)="start()"
+                >
+                  Start
+                </button>
+              </div>
+
+              <div class="col-2">
+                <button
+                  type="button"
+                  class="btn btn-outline-primary"
+                  [disabled]="!isRunning"
+                  (click)="stop()"
+                >
+                  Stop
+                </button>
+              </div>
+
+              <div class="col-2">
+                <button
+                  type="button"
+                  class="btn btn-outline-primary"
+                  [disabled]="isRunning"
+
+                  (click)="tick()"
+                >
+                  Step
+                </button>
+              </div>
+
+
+
+
+
+              <div class="col-2">
+                <button
+                  type="button"
+                  [disabled]="isRunning"
+                  class="btn btn-outline-primary"
+                  (click)="initialiseData()"
+                >
+                  Reset
+                </button>
+              </div>
+              <div class="col-1"></div>
+              <div class="col-2">
+                <h4>{{ animals.length }}</h4>
+              </div>
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+    <div class="col">
+      <div>
+        <ngx-charts-line-chart
+          [view]="[700, 300]"
+          [results]="change"
+          [legend]="true"
+          [legendTitle]="title"
+          [xAxis]="true"
+          [yAxis]="true"
+          [showGridLines]="true"
+          [showXAxisLabel]="true"
+          [showYAxisLabel]="true"
+          [xAxisLabel]="xaxis"
+          [yAxisLabel]="yaxisChange"
+          [yScaleMax]="100"
+          [yScaleMin]="-100"
+          [curve]="curve"
+        >
+        </ngx-charts-line-chart>
+      </div>
+    </div>
+  </div>
 </div>
 
-<ngx-charts-line-chart
-[view]="[700, 300]"
-[results]="data"
->
-</ngx-charts-line-chart>
+
+
+

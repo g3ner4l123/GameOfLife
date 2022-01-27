@@ -4,6 +4,9 @@ import { Fish } from '../models/fish';
 
 import { Shark } from '../models/shark';
 
+declare var $:any;
+import * as shape from 'd3-shape'
+
 @Component({
   selector: 'app-game',
   templateUrl: './game.component.html',
@@ -12,33 +15,58 @@ import { Shark } from '../models/shark';
 export class GameComponent implements OnInit {
 
   data: any[] = [];
+  change: any[] = [];
   view: any[] = [700, 300];
+  title: string = "Animals";
+  xaxis = "Time";
+  yaxis = "Amount"
+  yaxisChange = "Change";
+  curve = shape.curveBasis;
 
-  public rowSize = 20;
-  public colSize = 20;
+  public rowSize = 40; //30
+  public colSize = 40; //30
   public gird: number[][] | undefined;
   public animals: Animal[] = [];
   public ready:boolean = false;
-  private timeToBreed = 10;
-  private timeToDeath = 5;
-  private isRunning = false;
+  public timeToBreed = 8;
+  public timeToDeath = 5;
+  public defaultFish = 300;
+  public defaultSharks = 20;
+  public isRunning = false;
   private intervalId!: number;
   public counter:number = 0;
+  public lastCyleFish = this.defaultFish;
+  public lastCyleShark = this.defaultSharks;
 
   constructor() {
    }
 
   ngOnInit(): void {
     this.gird = new Array(this.rowSize).fill(0).map(() => new Array(this.colSize).fill(0));
-    this.generateSharks(20);
-    this.generateFish(200);
+
+  }
+
+  public initialiseData() {
+    this.defaultFish =Number((<HTMLInputElement>document.getElementById('fishNumber')).value);
+    this.defaultSharks =Number((<HTMLInputElement>document.getElementById('sharkNumber')).value);
+    this.timeToDeath =Number((<HTMLInputElement>document.getElementById('deathNumber')).value);
+    this.timeToBreed =Number((<HTMLInputElement>document.getElementById('repodNumber')).value);
+    this.lastCyleFish = this.defaultFish;
+    this.lastCyleShark = this.defaultSharks;
+    this.counter = 0;
+    this.data = [];
+    this.change = [];
+    this.gird = new Array(this.rowSize).fill(0).map(() => new Array(this.colSize).fill(0));
+    this.animals = [];
+    this.generateSharks(this.defaultSharks); //20
+    this.generateFish(this.defaultFish); //200
     this.draw();
     this.data.push({
       "name": "Shark",
       "series": [
         {
           "name": "0",
-          "value": "20"
+          "value": this.defaultSharks
         }
       ]
     });
@@ -47,10 +75,29 @@ export class GameComponent implements OnInit {
       "series": [
         {
           "name": "0",
-          "value":"200"
+          "value": this.defaultFish
         }
       ]
     });
+    this.change.push({
+      "name": "Shark",
+      "series": [
+        {
+          "name": "0",
+          "value": "0"
+        }
+      ]
+    });
+    this.change.push({
+      "name": "Fish",
+      "series": [
+        {
+          "name": "0",
+          "value": "0"
+        }
+      ]
+    });
+
     this.ready = true;
   }
 
@@ -79,14 +126,27 @@ export class GameComponent implements OnInit {
   }
 
   public tick() {
+    var currentFish = this.animals.filter(x => x.idetifier == 2).length;
+    var currentShark = this.animals.filter(x => x.idetifier == 1).length;
     this.data[0].series.push({
       "name": this.counter,
-      "value": this.animals.filter(x => x.idetifier == 2).length
+      "value": currentFish
     });
     this.data[1].series.push({
       "name": this.counter,
-      "value": this.animals.filter(x => x.idetifier == 1).length
+      "value": currentShark
     });
+
+    this.change[0].series.push({
+      "name": this.counter,
+      "value": currentFish - this.lastCyleFish
+    });
+    this.change[1].series.push({
+      "name": this.counter,
+      "value": currentShark - this.lastCyleShark
+    });
+    this.lastCyleFish = currentFish;
+    this.lastCyleShark = currentShark;
     this.animals.sort((a1,a2) => {
       return a1.idetifier - a2.idetifier;
     })
@@ -100,7 +160,9 @@ export class GameComponent implements OnInit {
     this.draw();
     let updateed = this.data;
     this.data = [...updateed];
-    console.log(this.data);
+    let upchange = this.change;
+    this.change = [...upchange];
+    this.animals = this.animals.filter(a => a != null && a != undefined);
   }
   }
 
@@ -120,15 +182,18 @@ export class GameComponent implements OnInit {
     let neighbours = this.getNeighbours(fish);
     let nextField = this.getNextField(neighbours); //HERE
     if ( nextField != undefined) {
+      console.log("Fish moving");
       if (fish.ciclesToBreed < this.timeToBreed) {
         fish.ciclesToBreed++;
       } else {
+        console.log("Fish breeding");
         fish.ciclesToBreed = 0;
         this.animals.push(new Fish(fish.xCoordinate,fish.yCoordinate,0));
       }
       fish.xCoordinate = nextField[0];
       fish.yCoordinate = nextField[1];
     } else {
+      console.log("Fish waiting");
       if (fish.ciclesToBreed < this.timeToBreed ) {
         fish.ciclesToBreed++;
       }
@@ -143,15 +208,18 @@ export class GameComponent implements OnInit {
     let nextfield = this.getNextFieldShark(neighbours); //HERE
     if ( nextfield != undefined) {
       if (this.animals.some(a => a.xCoordinate == nextfield[0] && a.yCoordinate == nextfield[1])) {
+        console.log("Shark killing");
         shark.ciclesToDeath = 0;
         let killed = this.animals.filter(x => x.xCoordinate == nextfield[0] && x.yCoordinate == nextfield[1])[0]
         let killedIndex = this.animals.indexOf(killed);
-        delete this.animals[killedIndex];
+        delete this.animals[killedIndex]; //this.animals.splice(killedIndex,1);
       } else {
         if ( shark.ciclesToDeath < this.timeToDeath) {
+          console.log("Shark moving");
           shark.ciclesToDeath++;
         } else {
-          delete this.animals[index];
+          console.log("Shark starving");
+           delete this.animals[index]; // this.animals.splice(index,1);
           return
         }
       }
@@ -159,15 +227,18 @@ export class GameComponent implements OnInit {
         shark.ciclesToBreed++;
       } else {
         shark.ciclesToBreed = 0;
+        console.log("Shark breeding");
         this.animals?.push( new Shark(shark.xCoordinate,shark.yCoordinate,0,0));
       }
       shark.xCoordinate = nextfield[0];
       shark.yCoordinate = nextfield[1];
     } else {
       if ( shark.ciclesToDeath < this.timeToDeath) {
+        console.log("Shark waiting");
         shark.ciclesToDeath++;
       } else {
-        delete this.animals[index];
+        console.log("Shark starving");
+        delete this.animals[index];// this.animals.splice(index,1);
         return
       }
       if (shark.ciclesToBreed < this.timeToBreed  ) {
@@ -215,9 +286,6 @@ export class GameComponent implements OnInit {
     return neighbours
   }
 
-
-
-
   public getColor(animal:number): any {
     if (animal == 1) {
       return {
@@ -230,6 +298,7 @@ export class GameComponent implements OnInit {
   }
 
   public start() {
+    this.initialiseData();
     this.intervalId = window.setInterval(() => {
     this.tick();
     },100);

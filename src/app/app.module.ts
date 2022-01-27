@@ -16,7 +16,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
     BrowserModule,
     BrowserAnimationsModule,
     AppRoutingModule,
-    NgxChartsModule
+    NgxChartsModule,
   ],
   providers: [],
   bootstrap: [AppComponent]

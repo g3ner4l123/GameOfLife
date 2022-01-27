@@ -1,16 +1,16 @@
 td {
-  width: 40px;
-  height: 40px;
+  width: 15px;
+  height: 15px;
   background-color: blue;
-  outline: black;
+
 }
 tr {
-  height: 40px;
+  height: 15px;
 }
 
 svg {
-  width: 30px;
-  height: 30px;
+  width: 10px;
+  height: 10px;
 margin-left:auto; margin-right:auto; display:block;
 }
 
@@ -20,6 +20,14 @@ margin-left:auto; margin-right:auto; display:block;
 
 .fish {
   background-color: yellow;
+}
+
+.outline {
+  outline: 3px solid black;
+}
+
+.row {
+  margin-top: 10px;
 }
 
 
